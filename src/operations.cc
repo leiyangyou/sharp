@@ -330,4 +330,95 @@ namespace sharp {
     *out = sharpened;
     return 0;
   }
+
+  int Watermark(VipsObject *context,
+                VipsImage *image,
+                VipsImage **out,
+                std::string const&text,
+                double *color,
+                std::string const &font,
+                int width,
+                int dpi,
+                int lineSpacing) {
+
+    VipsImage *watermarkText;
+    if (vips_text(&watermarkText,
+                  text.c_str(),
+                  "font", font.c_str(),
+                  "width", width,
+                  "dpi", dpi,
+                  "align", VIPS_ALIGN_CENTRE,
+                  "linespacing", lineSpacing, NULL)) {
+       return -1;
+    }
+    vips_object_local(context, watermarkText);
+
+    VipsImage *watermarkTextWithOpacity;
+    if (vips_linear1(watermarkText, &watermarkTextWithOpacity, color[3]/255.0, 0, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, watermarkTextWithOpacity);
+    color[3] = 255.0;
+
+    VipsImage *watermarkTextUCHAR;
+    if (vips_cast(watermarkTextWithOpacity, &watermarkTextUCHAR, VIPS_FORMAT_UCHAR, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, watermarkTextUCHAR);
+
+
+    VipsImage *watermarkTextImage;
+    if (vips_embed(watermarkTextUCHAR,
+                   &watermarkTextImage,
+                   (image->Xsize - watermarkTextUCHAR->Xsize) / 2,
+                   (image->Ysize - watermarkTextUCHAR->Ysize) / 2,
+                   image->Xsize,
+                   image->Ysize, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, watermarkTextImage);
+
+    VipsImage *black;
+    if (vips_black(&black, 1, 1, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, black);
+
+    VipsImage *watermarkTextPaint;
+    double ones[4] = {1, 1, 1, 1};
+    if (vips_linear(black, &watermarkTextPaint, ones, color, image->Bands, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, watermarkTextPaint);
+
+    VipsImage *watermarkTextPaintUCHAR;
+    if (vips_cast(watermarkTextPaint, &watermarkTextPaintUCHAR, VIPS_FORMAT_UCHAR, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, watermarkTextPaintUCHAR);
+
+    VipsImage *watermarkTextPaintCoerced;
+    if (vips_copy(watermarkTextPaintUCHAR, &watermarkTextPaintCoerced, "interpretation", image->Type, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, watermarkTextPaintCoerced);
+
+    VipsImage *watermarkTextPaintImage;
+    if (vips_embed(watermarkTextPaintCoerced,
+                   &watermarkTextPaintImage,
+                   0, 0,
+                   image->Xsize, image->Ysize,
+                   "extend", VIPS_EXTEND_COPY, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, watermarkTextPaintImage);
+
+
+    if (vips_ifthenelse(watermarkTextImage, watermarkTextPaintImage, image, out, "blend", TRUE, NULL)) {
+      return -1;
+    }
+    vips_object_local(context, *out);
+
+    return 0;
+  }
 }  // namespace sharp

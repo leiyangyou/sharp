@@ -42,6 +42,7 @@ using sharp::Unpremultiply;
 using sharp::Normalize;
 using sharp::Blur;
 using sharp::Sharpen;
+using sharp::Watermark;
 
 using sharp::ImageType;
 using sharp::DetermineImageType;
@@ -129,6 +130,12 @@ struct PipelineBaton {
   int withMetadataOrientation;
   int tileSize;
   int tileOverlap;
+  std::string watermarkText;
+  double watermarkColor[4];
+  std::string watermarkFont;
+  int watermarkWidth;
+  int watermarkDpi;
+  int watermarkLineSpacing;
 
   PipelineBaton():
     bufferInLength(0),
@@ -171,6 +178,10 @@ struct PipelineBaton {
       overlayColor[1] = 0.0;
       overlayColor[2] = 0.0;
       overlayColor[3] = 0.0;
+      watermarkColor[0] = 255.0;
+      watermarkColor[1] = 255.0;
+      watermarkColor[2] = 255.0;
+      watermarkColor[3] = 255.0;
     }
 };
 
@@ -848,6 +859,22 @@ class PipelineWorker : public AsyncWorker {
       image = normalized;
     }
 
+    if (!baton->watermarkText.empty()) {
+      VipsImage *watermarked;
+      if (Watermark(hook,
+                    image,
+                    &watermarked,
+                    baton->watermarkText,
+                    baton->watermarkColor,
+                    baton->watermarkFont,
+                    baton->watermarkWidth,
+                    baton->watermarkDpi,
+                    baton->watermarkLineSpacing)) {
+        return Error();
+      }
+      image = watermarked;
+    }
+
     // Convert image to sRGB, if not already
     if (image->Type != VIPS_INTERPRETATION_sRGB) {
       // Switch interpretation to sRGB
@@ -1279,6 +1306,19 @@ NAN_METHOD(pipeline) {
   for (int i = 0; i < 4; i++) {
     baton->overlayColor[i] = To<int32_t>(Get(overlayColor, i).ToLocalChecked()).FromJust();
   }
+
+  baton->watermarkText = *Utf8String(Get(options, New("watermarkText").ToLocalChecked()).ToLocalChecked());
+
+  Local<Object> watermarkColor = Get(options, New("watermarkColor").ToLocalChecked()).ToLocalChecked().As<Object>();
+  for (int i = 0; i < 4; i++) {
+    baton->watermarkColor[i] = To<int32_t>(Get(watermarkColor, i).ToLocalChecked()).FromJust();
+  }
+
+  baton->watermarkFont = *Utf8String(Get(options, New("watermarkFont").ToLocalChecked()).ToLocalChecked());
+  baton->watermarkWidth = To<int32_t>(Get(options, New("watermarkWidth").ToLocalChecked()).ToLocalChecked()).FromJust();
+  baton->watermarkDpi = To<int32_t>(Get(options, New("watermarkDpi").ToLocalChecked()).ToLocalChecked()).FromJust();
+  baton->watermarkLineSpacing = To<int32_t>(Get(options, New("watermarkLineSpacing").ToLocalChecked()).ToLocalChecked()).FromJust();
+
 
   // Function to notify of queue length changes
   Callback *queueListener = new Callback(Get(options, New("queueListener").ToLocalChecked()).ToLocalChecked().As<Function>());

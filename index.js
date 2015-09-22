@@ -78,6 +78,12 @@ var Sharp = function(input) {
     withMetadataOrientation: -1,
     tileSize: 256,
     tileOverlap: 0,
+    watermarkText: "",
+    watermarkColor: [255, 255, 255, 255],
+    watermarkFont: "Arial",
+    watermarkWidth: 300,
+    watermarkDpi: 300,
+    watermarkLineSpacing: 0,
     maskColor: [0, 0, 0, 0],
     // Function to notify of queue length changes
     queueListener: function(queueLength) {
@@ -229,6 +235,45 @@ Sharp.prototype.overlayWith = function(overlayPath) {
     this.options.overlayPath = overlayPath;
   }
 
+  return this;
+};
+
+Sharp.prototype.watermark = function(watermark) {
+  if (typeof watermark != 'object') {
+    throw new Error('The watermark options must be an object');
+  }
+
+  if (typeof watermark.text != 'string') {
+    throw new Error('The watermark text must be a string');
+  }
+
+  if (watermark.text === '') {
+    throw new Error('The watermark text cannot be empty');
+  }
+
+  this.options.watermarkText = watermark.text;
+
+  if (watermark.color) {
+    var colour = color(watermark.color);
+    this.options.watermarkColor = colour.rgbArray();
+    this.options.watermarkColor.push(colour.alpha() * 255);
+  }
+
+  if (watermark.font) {
+    this.options.watermarkFont = watermark.font;
+  }
+
+  if (watermark.width) {
+    this.options.watermarkWidth = watermark.width;
+  }
+
+  if (watermark.dpi) {
+    this.options.watermarkDpi = watermark.dpi;
+  }
+
+  if (watermark.lineSpacing) {
+    this.options.watermarkLineSpacing = watermark.lineSpacing;
+  }
   return this;
 };
 

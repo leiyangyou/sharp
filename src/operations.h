@@ -34,6 +34,15 @@ namespace sharp {
    */
   int Sharpen(VipsObject *context, VipsImage *image, VipsImage **out, int radius, double flat, double jagged);
 
+  int Watermark(VipsObject *context,
+                VipsImage *image,
+                VipsImage **out,
+                std::string const&text,
+                double *color,
+                std::string const &font,
+                int width,
+                int dpi,
+                int lineSpacing);
 }  // namespace sharp
 
 #endif  // SRC_OPERATIONS_H_
