@@ -339,7 +339,7 @@ namespace sharp {
                 std::string const &font,
                 int width,
                 int dpi,
-                int lineSpacing) {
+                int spacing) {
 
     VipsImage *watermarkText;
     if (vips_text(&watermarkText,
@@ -348,7 +348,7 @@ namespace sharp {
                   "width", width,
                   "dpi", dpi,
                   "align", VIPS_ALIGN_CENTRE,
-                  "linespacing", lineSpacing, NULL)) {
+                  "spacing", spacing, NULL)) {
        return -1;
     }
     vips_object_local(context, watermarkText);

@@ -24,7 +24,7 @@ describe('Watermarking', function() {
 
     sharp(fixtures.inputJpg).
       resize(256).
-      watermark({text: 'Hello\nWorld', color: 'rgba(0, 0, 0, 0.3)', width: 200, font: 'Arial 10', lineSpacing: 5, dpi: 500}).
+      watermark({text: 'Hello\nWorld', color: 'rgba(0, 0, 0, 0.3)', width: 200, font: 'Arial 10', spacing: 5, dpi: 500}).
       toFile(paths.actual, function (error) {
         if (error) return done(error);
         fixtures.assertMaxColourDistance(paths.actual, paths.expected);
@@ -37,7 +37,7 @@ describe('Watermarking', function() {
 
     sharp(fixtures.inputPngAlphaPremultiplicationSmall).
       resize(256).
-      watermark({text: 'Hello\nWorld', color: 'rgba(0, 0, 0, 0.3)', width: 200, font: 'Arial 10', lineSpacing: 50, dpi: 500}).
+      watermark({text: 'Hello\nWorld', color: 'rgba(0, 0, 0, 0.3)', width: 200, font: 'Arial 10', spacing: 50, dpi: 500}).
       toFile(paths.actual, function (error) {
         if (error) return done(error);
         fixtures.assertMaxColourDistance(paths.actual, paths.expected);

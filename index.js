@@ -83,7 +83,7 @@ var Sharp = function(input) {
     watermarkFont: "Arial",
     watermarkWidth: 300,
     watermarkDpi: 300,
-    watermarkLineSpacing: 0,
+    watermarkSpacing: 0,
     maskColor: [0, 0, 0, 0],
     // Function to notify of queue length changes
     queueListener: function(queueLength) {
@@ -271,8 +271,8 @@ Sharp.prototype.watermark = function(watermark) {
     this.options.watermarkDpi = watermark.dpi;
   }
 
-  if (watermark.lineSpacing) {
-    this.options.watermarkLineSpacing = watermark.lineSpacing;
+  if (watermark.spacing) {
+    this.options.watermarkSpacing = watermark.spacing;
   }
   return this;
 };

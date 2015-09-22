@@ -42,7 +42,7 @@ namespace sharp {
                 std::string const &font,
                 int width,
                 int dpi,
-                int lineSpacing);
+                int spacing);
 }  // namespace sharp
 
 #endif  // SRC_OPERATIONS_H_

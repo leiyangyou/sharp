@@ -135,7 +135,7 @@ struct PipelineBaton {
   std::string watermarkFont;
   int watermarkWidth;
   int watermarkDpi;
-  int watermarkLineSpacing;
+  int watermarkSpacing;
 
   PipelineBaton():
     bufferInLength(0),
@@ -869,7 +869,7 @@ class PipelineWorker : public AsyncWorker {
                     baton->watermarkFont,
                     baton->watermarkWidth,
                     baton->watermarkDpi,
-                    baton->watermarkLineSpacing)) {
+                    baton->watermarkSpacing)) {
         return Error();
       }
       image = watermarked;
@@ -1317,7 +1317,7 @@ NAN_METHOD(pipeline) {
   baton->watermarkFont = *Utf8String(Get(options, New("watermarkFont").ToLocalChecked()).ToLocalChecked());
   baton->watermarkWidth = To<int32_t>(Get(options, New("watermarkWidth").ToLocalChecked()).ToLocalChecked()).FromJust();
   baton->watermarkDpi = To<int32_t>(Get(options, New("watermarkDpi").ToLocalChecked()).ToLocalChecked()).FromJust();
-  baton->watermarkLineSpacing = To<int32_t>(Get(options, New("watermarkLineSpacing").ToLocalChecked()).ToLocalChecked()).FromJust();
+  baton->watermarkSpacing = To<int32_t>(Get(options, New("watermarkSpacing").ToLocalChecked()).ToLocalChecked()).FromJust();
 
 
   // Function to notify of queue length changes
